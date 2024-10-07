@@ -1,0 +1,9 @@
+bin/**
+include
+lib/**
+lib64/**
+share
+tensorboard_logs/**
+*.txt
+*.cfg
+lib64
