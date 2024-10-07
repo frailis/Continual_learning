@@ -1,8 +1,8 @@
-bin
+bin/**
 include
-lib
-lib64
+lib/**
+lib64/**
 share
-tensorboard_logs
+tensorboard_logs/**
 *.txt
-pyvenv.cfg
+*.cfg
