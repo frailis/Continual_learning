@@ -54,4 +54,4 @@ for i in range(1, len(sys.argv)):
     str = './tensorboard_logs/' + sys.argv[i]
     logs.append(str)
 tag = 'Accuracy'  
-plot_logs(logs, tag, xlabel='Iterations', ylabel='Accuracy', title='Accuracy for the first task M=0.0')
+plot_logs(logs, tag, xlabel='Iterations', ylabel='Accuracy', title='Accuracy for the first task M=0.1')
