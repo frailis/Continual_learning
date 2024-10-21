@@ -9,6 +9,7 @@ def plot_logs(log_dirs, tag, xlabel='Iterations', ylabel='Value', title='Average
     common_steps = None
     sum_values = None
     i=0
+    end_values = [[], [], [], [], []]
 
     for log_dir in log_dirs:
         i += 1
@@ -31,6 +32,16 @@ def plot_logs(log_dirs, tag, xlabel='Iterations', ylabel='Value', title='Average
         else:
             sum_values = sum_values + aligned_values
 
+        end_values[0].append(event_acc.Scalars("END_Accuracy0")[-1].value)
+        end_values[1].append(event_acc.Scalars("END_Accuracy1")[-1].value)
+        end_values[2].append(event_acc.Scalars("END_Accuracy2")[-1].value)
+        end_values[3].append(event_acc.Scalars("END_Accuracy3")[-1].value)
+        end_values[4].append(event_acc.Scalars("END_Accuracy4")[-1].value)
+
+    for value_list in end_values:
+        print(str(np.average(value_list)) + " - " + str(np.max(value_list) - np.average(value_list)))
+    
+
     
     min_values = np.min(scalar_values, axis=0)
     max_values = np.max(scalar_values, axis=0)
@@ -51,7 +62,7 @@ def plot_logs(log_dirs, tag, xlabel='Iterations', ylabel='Value', title='Average
 
 logs = []
 for i in range(1, len(sys.argv)):
-    str = './tensorboard_logs/' + sys.argv[i]
-    logs.append(str)
+    string = './tensorboard_logs/' + sys.argv[i]
+    logs.append(string)
 tag = 'Accuracy'  
-plot_logs(logs, tag, xlabel='Iterations', ylabel='Accuracy', title='Accuracy for the first task M=0.1')
+plot_logs(logs, tag, xlabel='Iterations', ylabel='Accuracy', title='Accuracy for the first task M=0.0')
