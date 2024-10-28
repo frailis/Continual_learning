@@ -55,35 +55,37 @@ class MyReplay(Replay):
 
 
 
-n_seeds = int(sys.argv[2])
-momentum = sys.argv[1]
+n_seeds = int(sys.argv[1])
+#momentum = sys.argv[1]
 memory = 2000
+momentum_list=[0, 0.1, 0.5, 0.9]
 
-for i in range(0, n_seeds):
-    benchmark = SplitMNIST(n_experiences = 5, seed=(123 + i), return_task_id=True)
-    model = SimpleMLP(num_classes=benchmark.n_classes, hidden_layers=2, hidden_size=400, drop_rate=0)
-    tb_logger = TensorboardLogger(tb_log_dir="./tensorboard_logs/2layer" + str(memory) + "-" + momentum + "-" + str(i))
-    interactive_logger = InteractiveLogger()
-    eval_plugin = EvaluationPlugin(
-        accuracy_metrics(minibatch=True, epoch=True, experience=True, stream=True),
-        loss_metrics(minibatch=True, epoch=True, experience=True, stream=True),
-        forgetting_metrics(experience=True, stream=True),
-        loggers=[interactive_logger, tb_logger]
-    )  
-    strategy = MyReplay(
-        model=model,
-        optimizer = SGD(model.parameters(), lr=0.01, momentum=float(momentum)),
-        criterion = CrossEntropyLoss(),
-        mem_size = memory,
-        train_mb_size = 256,
-        eval_mb_size = 256,
-        train_epochs = 10,
-        evaluator = eval_plugin,
-        eval_every = 1,
-        tb_writer = tb_logger.writer
-    )   
-    print("Experiment Start")
+for momentum in momentum_list:
+    for i in range(0, n_seeds):
+        benchmark = SplitMNIST(n_experiences = 5, seed=(123 + i), return_task_id=True)
+        model = SimpleMLP(num_classes=benchmark.n_classes, hidden_layers=2, hidden_size=400, drop_rate=0)
+        tb_logger = TensorboardLogger(tb_log_dir="./tensorboard_logs/2layer-" + str(memory) + "-" + str(momentum) + "-" + str(i))
+        interactive_logger = InteractiveLogger()
+        eval_plugin = EvaluationPlugin(
+            accuracy_metrics(minibatch=True, epoch=True, experience=True, stream=True),
+            loss_metrics(minibatch=True, epoch=True, experience=True, stream=True),
+            forgetting_metrics(experience=True, stream=True),
+            loggers=[interactive_logger, tb_logger]
+        )  
+        strategy = MyReplay(
+            model=model,
+            optimizer = SGD(model.parameters(), lr=0.01, momentum=float(momentum)),
+            criterion = CrossEntropyLoss(),
+            mem_size = memory,
+            train_mb_size = 256,
+            eval_mb_size = 256,
+            train_epochs = 10,
+            evaluator = eval_plugin,
+            eval_every = 1,
+            tb_writer = tb_logger.writer
+        )   
+        print("Experiment Start")
 
-    for experience in benchmark.train_stream:    
-        res = strategy.train(experience)  
+        for experience in benchmark.train_stream:    
+            res = strategy.train(experience)  
 
