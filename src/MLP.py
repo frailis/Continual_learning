@@ -31,6 +31,7 @@ class MyReplay(Replay):
         if 'Top1_Acc_Exp/eval_phase/test_stream/Task000/Exp000' in results:
             acc_task1 = results['Top1_Acc_Exp/eval_phase/test_stream/Task000/Exp000']
             self.tb_writer.add_scalar("Accuracy", acc_task1, self.iter_count)
+
     
     def _after_training(self, **kwargs):
         super()._after_training(**kwargs)
@@ -56,15 +57,14 @@ class MyReplay(Replay):
 
 
 n_seeds = int(sys.argv[1])
-#momentum = sys.argv[1]
-memory = 2000
+memory = int(sys.argv[2])
 momentum_list=[0, 0.1, 0.5, 0.9]
 
-for momentum in momentum_list:
+for j, momentum in enumerate(sys.argv[3:]):
     for i in range(0, n_seeds):
         benchmark = SplitMNIST(n_experiences = 5, seed=(123 + i), return_task_id=True)
         model = SimpleMLP(num_classes=benchmark.n_classes, hidden_layers=2, hidden_size=400, drop_rate=0)
-        tb_logger = TensorboardLogger(tb_log_dir="./tensorboard_logs/2layer-" + str(memory) + "-" + str(momentum) + "-" + str(i))
+        tb_logger = TensorboardLogger(tb_log_dir="./tensorboard_logs/2layer-" + str(memory) + "-" + momentum + "-" + str(i))
         interactive_logger = InteractiveLogger()
         eval_plugin = EvaluationPlugin(
             accuracy_metrics(minibatch=True, epoch=True, experience=True, stream=True),
@@ -86,6 +86,12 @@ for momentum in momentum_list:
         )   
         print("Experiment Start")
 
-        for experience in benchmark.train_stream:    
+        #f = open("LOG.txt", "a")
+
+        for experience in benchmark.train_stream: 
+            #f.write(str(strategy.optimizer.state_dict().get('state')))
+            #strategy.optimizer = SGD(model.parameters(), lr=0.01, momentum=float(momentum))
+            #f.write(str(strategy.optimizer.state_dict().get('state')))
             res = strategy.train(experience)  
 
+        #f.close()

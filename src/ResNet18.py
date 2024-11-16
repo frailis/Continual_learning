@@ -1,7 +1,14 @@
+'''
+    argv[1] --- number of seeds
+    argv[2] --- number of memory units
+    argv[3, ...] --- momentums
+'''
+
+
 from decimal import Decimal
 from avalanche.models import SlimResNet18
 
-from avalanche.benchmarks.classic import SplitCIFAR10
+from avalanche.benchmarks.classic import SplitCIFAR10, SplitCIFAR100
 
 from avalanche.logging import InteractiveLogger, TensorboardLogger
 
@@ -56,16 +63,14 @@ class MyReplay(Replay):
 
 
 n_seeds = int(sys.argv[1])
-#momentum = sys.argv[1]
-memory = 500
+memory = int(sys.argv[2])
 
-momentum_list=[0, 0.9]
 
-for momentum in momentum_list:
-    for i in range(0, n_seeds):
-        benchmark = SplitCIFAR10(n_experiences = 5, seed=(123 + i), return_task_id=True)
+for j, momentum in enumerate(sys.argv[3:]):
+    for i in range(3, n_seeds):
+        benchmark = SplitCIFAR100(n_experiences = 10, seed=(123 + i), return_task_id=True)
         model = SlimResNet18(nclasses=benchmark.n_classes)
-        tb_logger = TensorboardLogger(tb_log_dir="./tensorboard_logs/cifar10-" + str(memory) + "-" + str(momentum) + "-" + str(i))
+        tb_logger = TensorboardLogger(tb_log_dir="./tensorboard_logs/cifar100-" + str(memory) + "-" + momentum + "-" + str(i))
         interactive_logger = InteractiveLogger()
         eval_plugin = EvaluationPlugin(
             accuracy_metrics(minibatch=True, epoch=True, experience=True, stream=True),
@@ -87,6 +92,6 @@ for momentum in momentum_list:
         )   
         print("Experiment Start")
 
-        for experience in benchmark.train_stream:    
+        for experience in benchmark.train_stream[:5]:    
             res = strategy.train(experience)  
 

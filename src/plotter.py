@@ -59,10 +59,12 @@ def plot_logs(log_dirs, tag, xlabel='Iterations', ylabel='Value', title='Average
     plt.legend()
     plt.grid(True)
     plt.show()
+plt.rcParams.update({'font.size': 20})
 
 logs = []
 for i in range(1, len(sys.argv)):
+    print(sys.argv[i])
     string = './tensorboard_logs/' + sys.argv[i]
     logs.append(string)
 tag = 'Accuracy'  
-plot_logs(logs, tag, xlabel='Iterations', ylabel='Accuracy', title='Accuracy for the first task M=0.9')
+plot_logs(logs, tag, xlabel='Iterations', ylabel='Accuracy', title='')
